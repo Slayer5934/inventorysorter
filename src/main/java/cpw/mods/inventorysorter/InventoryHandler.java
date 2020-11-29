@@ -136,7 +136,7 @@ public enum InventoryHandler
     {
         int slotLow = context.slotMapping.begin;
         int slotHigh = context.slotMapping.end + 1;
-        SortedMultiset<ItemStackHolder> itemcounts = TreeMultiset.create(new InventoryHandler.ItemStackComparator());
+        SortedMultiset<ItemStackHolder> itemcounts = TreeMultiset.create(new ItemStackComparator());
         for (int i = slotLow; i < slotHigh; i++)
         {
             final Slot slot = context.player.openContainer.getSlot(i);
@@ -148,12 +148,8 @@ public enum InventoryHandler
                 itemcounts.add(ish, stack.getCount());
             }
         }
-        final HashMultiset<ItemStackHolder> entries = HashMultiset.create();
-        for (Multiset.Entry<ItemStackHolder> entry : itemcounts.descendingMultiset().entrySet())
-        {
-            entries.add(entry.getElement(),entry.getCount());
-        }
-        return entries;
+
+        return itemcounts;
     }
 
     public static class ItemStackComparator implements Comparator<ItemStackHolder>
@@ -164,7 +160,9 @@ public enum InventoryHandler
             if (o1 == o2) return 0;
             if (o1.is == o2.is) return 0;
             if (o1.is.getItem() != o2.is.getItem())
+            {
                 return String.valueOf(o1.is.getItem().getRegistryName()).compareTo(String.valueOf(o2.is.getItem().getRegistryName()));
+            }
             if (o1.is.getMetadata() != o2.is.getMetadata())
                 return Ints.compare(o1.is.getMetadata(), o2.is.getMetadata());
             if (ItemStack.areItemStackTagsEqual(o1.is, o2.is))

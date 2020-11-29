@@ -25,6 +25,7 @@ import net.minecraft.item.*;
 import org.apache.logging.log4j.*;
 
 import javax.annotation.*;
+import java.util.Iterator;
 import java.util.function.*;
 
 /**
@@ -49,7 +50,6 @@ public enum SortingHandler implements Consumer<ContainerContext>
         {
             compactInventory(context, itemcounts);
         }
-        return;
     }
 
     private void distributeInventory(final ContainerContext context, final Multiset<ItemStackHolder> itemcounts)
@@ -115,10 +115,21 @@ public enum SortingHandler implements Consumer<ContainerContext>
         }
 
         InventorySorter.INSTANCE.debugLog("Container \"{}\" being sorted", ()->new String[] {containerClass});
-        final UnmodifiableIterator<Multiset.Entry<ItemStackHolder>> itemsIterator;
+
+        boolean oldSort = false;
+
+        final Iterator<Multiset.Entry<ItemStackHolder>> itemsIterator;
         try
         {
-            itemsIterator = Multisets.copyHighestCountFirst(itemcounts).entrySet().iterator();
+            if(oldSort)
+            { 
+                itemsIterator = Multisets.copyHighestCountFirst(itemcounts).entrySet().iterator();
+            }
+            // This sort is controlled by InventoryHandler
+            else
+            {
+                itemsIterator = itemcounts.entrySet().iterator();
+            }
         }
         catch (Exception e)
         {
